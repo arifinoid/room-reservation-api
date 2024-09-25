@@ -10,4 +10,6 @@ import (
 func RegisterCalendarRoutes(r *mux.Router, calendarHandler *handler.CalendarHandler) {
 	subRouter := r.PathPrefix("/api/v1/calendars").Subrouter()
 	subRouter.HandleFunc("", calendarHandler.CreateCalendar).Methods(http.MethodPost)
+	subRouter.HandleFunc("", calendarHandler.GetCalendars).Methods(http.MethodGet)
+	subRouter.HandleFunc("/{id}", calendarHandler.GetCalendarByID).Methods(http.MethodGet)
 }

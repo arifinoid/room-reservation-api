@@ -9,6 +9,8 @@ import (
 
 type CalendarRepository interface {
 	Create(calendar domain.Calendar) (int, error)
+	GetAll() ([]domain.Calendar, error)
+	GetByID(id int) (domain.Calendar, error)
 }
 
 type calendarRepo struct {
@@ -50,4 +52,31 @@ func (r *calendarRepo) Create(calendar domain.Calendar) (int, error) {
 		return 0, err
 	}
 	return id, nil
+}
+
+func (r *calendarRepo) GetAll() ([]domain.Calendar, error) {
+	var calendars []domain.Calendar
+	query := `SELECT id, room_id, rateplan_id, date, availability, price FROM calendars`
+	rows, err := r.db.Query(query)
+	if err != nil {
+		return calendars, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var calendar domain.Calendar
+		if err := rows.Scan(&calendar.ID, &calendar.RoomID, &calendar.RatePlanID, &calendar.Date, &calendar.Availability, &calendar.Price); err != nil {
+			return calendars, err
+		}
+		calendars = append(calendars, calendar)
+	}
+	return calendars, nil
+}
+
+func (r *calendarRepo) GetByID(id int) (domain.Calendar, error) {
+	var calendar domain.Calendar
+	query := `SELECT id, room_id, rateplan_id, date, availability, price FROM calendars WHERE id = $1`
+	if err := r.db.QueryRow(query, id).Scan(&calendar.ID, &calendar.RoomID, &calendar.RatePlanID, &calendar.Date, &calendar.Availability, &calendar.Price); err != nil {
+		return calendar, err
+	}
+	return calendar, nil
 }
