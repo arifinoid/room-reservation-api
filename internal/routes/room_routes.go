@@ -10,4 +10,6 @@ import (
 func RegisterRoomRoutes(r *mux.Router, roomHandler *handler.RoomHandler) {
 	subRouter := r.PathPrefix("/api/v1/rooms").Subrouter()
 	subRouter.HandleFunc("", roomHandler.GetRooms).Methods(http.MethodGet)
+	subRouter.HandleFunc("/{id}", roomHandler.GetRoom).Methods(http.MethodGet)
+	subRouter.HandleFunc("", roomHandler.CreateRoom).Methods(http.MethodPost)
 }

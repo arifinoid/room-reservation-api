@@ -3,6 +3,9 @@ package lib
 import (
 	"encoding/json"
 	"net/http"
+	"regexp"
+
+	"github.com/go-playground/validator/v10"
 )
 
 type Response[T any] struct {
@@ -28,4 +31,10 @@ func JSONResponse[T any](w http.ResponseWriter, data T, success bool, err error)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 	json.NewEncoder(w).Encode(response)
+}
+
+func ValidateSlug(fl validator.FieldLevel) bool {
+	slug := fl.Field().String()
+	re := regexp.MustCompile(`^[a-z0-9\-]+$`)
+	return re.MatchString(slug)
 }

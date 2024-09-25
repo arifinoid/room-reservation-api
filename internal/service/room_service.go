@@ -1,12 +1,16 @@
 package service
 
 import (
+	"errors"
+
 	"github.com/arifinoid/room-reservation-api/internal/domain"
 	"github.com/arifinoid/room-reservation-api/internal/repository"
 )
 
 type RoomService interface {
-	GetAll() ([]domain.Room, error)
+	GetAllRooms() ([]domain.Room, error)
+	GetRoomByID(id int) (domain.Room, error)
+	CreateRoom(room domain.Room) (int, error)
 }
 
 type roomService struct {
@@ -19,6 +23,20 @@ func NewRoomService(roomRepo repository.RoomRepository) RoomService {
 	}
 }
 
-func (s *roomService) GetAll() ([]domain.Room, error) {
+func (s *roomService) GetAllRooms() ([]domain.Room, error) {
 	return s.roomRepo.GetAll()
+}
+
+func (s *roomService) GetRoomByID(id int) (domain.Room, error) {
+	if id <= 0 {
+		return domain.Room{}, errors.New("invalid room id")
+	}
+	return s.roomRepo.GetByID(id)
+}
+
+func (s *roomService) CreateRoom(room domain.Room) (int, error) {
+	if room.Name == "" {
+		return 0, errors.New("invalid room name")
+	}
+	return s.roomRepo.Create(room)
 }
