@@ -12,4 +12,6 @@ func RegisterRoomRoutes(r *mux.Router, roomHandler *handler.RoomHandler) {
 	subRouter.HandleFunc("", roomHandler.GetRooms).Methods(http.MethodGet)
 	subRouter.HandleFunc("/{id}", roomHandler.GetRoom).Methods(http.MethodGet)
 	subRouter.HandleFunc("", roomHandler.CreateRoom).Methods(http.MethodPost)
+	subRouter.HandleFunc("/{id}", roomHandler.UpdateRoom).Methods(http.MethodPut)
+	subRouter.HandleFunc("/{id}", roomHandler.DeleteRoom).Methods(http.MethodDelete)
 }

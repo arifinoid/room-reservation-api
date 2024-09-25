@@ -12,6 +12,8 @@ type RoomRepository interface {
 	GetAll() ([]domain.Room, error)
 	GetByID(id int) (domain.Room, error)
 	Create(room domain.Room) (int, error)
+	Update(id int, room domain.Room) error
+	Delete(id int) error
 }
 
 type roomRepo struct {
@@ -84,4 +86,34 @@ func (r *roomRepo) Create(room domain.Room) (int, error) {
 		return 0, err
 	}
 	return id, nil
+}
+
+func (r *roomRepo) Update(id int, room domain.Room) error {
+	featureJSON, err := json.Marshal(room.Feature)
+	if err != nil {
+		return err
+	}
+
+	var imagesArray interface{}
+	if len(room.Images) == 0 {
+		imagesArray = pq.Array(nil)
+	} else {
+		imagesArray = pq.Array(room.Images)
+	}
+
+	query := "UPDATE rooms SET name = $1, slug = $2, description = $3, feature = $4, published = $5, availability = $6, images = $7 WHERE id = $8"
+	_, err = r.db.Exec(query, room.Name, room.Slug, room.Description, string(featureJSON), room.Published, room.Availability, imagesArray, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *roomRepo) Delete(id int) error {
+	query := "DELETE FROM rooms WHERE id = $1"
+	_, err := r.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

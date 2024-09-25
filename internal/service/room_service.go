@@ -11,6 +11,8 @@ type RoomService interface {
 	GetAllRooms() ([]domain.Room, error)
 	GetRoomByID(id int) (domain.Room, error)
 	CreateRoom(room domain.Room) (int, error)
+	UpdateRoom(id int, room domain.Room) error
+	DeleteRoom(id int) error
 }
 
 type roomService struct {
@@ -39,4 +41,18 @@ func (s *roomService) CreateRoom(room domain.Room) (int, error) {
 		return 0, errors.New("invalid room name")
 	}
 	return s.roomRepo.Create(room)
+}
+
+func (s *roomService) UpdateRoom(id int, room domain.Room) error {
+	if id <= 0 {
+		return errors.New("invalid room id")
+	}
+	return s.roomRepo.Update(id, room)
+}
+
+func (s *roomService) DeleteRoom(id int) error {
+	if id <= 0 {
+		return errors.New("invalid room id")
+	}
+	return s.roomRepo.Delete(id)
 }

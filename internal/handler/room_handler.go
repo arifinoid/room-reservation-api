@@ -73,3 +73,46 @@ func (h *RoomHandler) CreateRoom(w http.ResponseWriter, r *http.Request) {
 		ID int `json:"id"`
 	}{ID: id}, true, nil)
 }
+
+func (h *RoomHandler) UpdateRoom(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		lib.JSONResponse(w, struct{}{}, false, errors.New("invalid room id"))
+		return
+	}
+
+	var room domain.Room
+	if err := json.NewDecoder(r.Body).Decode(&room); err != nil {
+		lib.JSONResponse(w, struct{}{}, false, err)
+		return
+	}
+
+	if err := h.validate.Struct(room); err != nil {
+		lib.JSONResponse(w, struct{}{}, false, err)
+		return
+	}
+
+	err = h.RoomService.UpdateRoom(id, room)
+	if err != nil {
+		lib.JSONResponse(w, struct{}{}, false, err)
+		return
+	}
+	lib.JSONResponse(w, struct{}{}, true, nil)
+}
+
+func (h *RoomHandler) DeleteRoom(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		lib.JSONResponse(w, struct{}{}, false, errors.New("invalid room id"))
+		return
+	}
+
+	err = h.RoomService.DeleteRoom(id)
+	if err != nil {
+		lib.JSONResponse(w, struct{}{}, false, err)
+		return
+	}
+	lib.JSONResponse(w, struct{}{}, true, nil)
+}
