@@ -63,9 +63,14 @@ func main() {
 	rateplanService := service.NewRatePlanService(rateplanRepo)
 	rateplanHandler := handler.NewRatePlanHandler(rateplanService, validate)
 
+	calendarRepo := repository.NewCalendarRepo(db)
+	calendarService := service.NewCalendarService(calendarRepo)
+	calendarHandler := handler.NewCandendarHandler(calendarService, validate)
+
 	router := mux.NewRouter()
 	routes.RegisterRoomRoutes(router, roomHandler)
 	routes.RegisterRatePlanRoutes(router, rateplanHandler)
+	routes.RegisterCalendarRoutes(router, calendarHandler)
 
 	log.Println("Starting server on :8080...")
 	if err := http.ListenAndServe(":8080", router); err != nil {
