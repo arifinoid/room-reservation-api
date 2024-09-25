@@ -1,0 +1,2 @@
+driver: postgres
+open: "user=user password=password dbname=room_reservation_db host=db sslmode=disable"
