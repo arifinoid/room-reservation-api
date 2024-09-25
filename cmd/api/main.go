@@ -7,6 +7,10 @@ import (
 
 	"github.com/arifinoid/room-reservation-api/internal/config"
 	"github.com/arifinoid/room-reservation-api/internal/database"
+	"github.com/arifinoid/room-reservation-api/internal/handler"
+	"github.com/arifinoid/room-reservation-api/internal/repository"
+	"github.com/arifinoid/room-reservation-api/internal/routes"
+	"github.com/arifinoid/room-reservation-api/internal/service"
 	"github.com/gorilla/mux"
 	migrate "github.com/rubenv/sql-migrate"
 
@@ -44,7 +48,12 @@ func main() {
 		log.Fatalf("Failed to run migrations: %v", err)
 	}
 
+	roomRepo := repository.NewRoomRepo(db)
+	roomService := service.NewRoomService(roomRepo)
+	roomHandler := handler.NewRoomHandler(roomService)
+
 	router := mux.NewRouter()
+	routes.RegisterRoomRoutes(router, roomHandler)
 
 	log.Println("Starting server on :8080...")
 	if err := http.ListenAndServe(":8080", router); err != nil {
