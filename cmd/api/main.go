@@ -59,8 +59,13 @@ func main() {
 	roomService := service.NewRoomService(roomRepo)
 	roomHandler := handler.NewRoomHandler(roomService, validate)
 
+	rateplanRepo := repository.NewRatePlanRepo(db)
+	rateplanService := service.NewRatePlanService(rateplanRepo)
+	rateplanHandler := handler.NewRatePlanHandler(rateplanService, validate)
+
 	router := mux.NewRouter()
 	routes.RegisterRoomRoutes(router, roomHandler)
+	routes.RegisterRatePlanRoutes(router, rateplanHandler)
 
 	log.Println("Starting server on :8080...")
 	if err := http.ListenAndServe(":8080", router); err != nil {
