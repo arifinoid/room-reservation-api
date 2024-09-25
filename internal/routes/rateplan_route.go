@@ -10,4 +10,6 @@ import (
 func RegisterRatePlanRoutes(r *mux.Router, rateplanHandler *handler.RatePlanHandler) {
 	subRouter := r.PathPrefix("/api/v1/rateplans").Subrouter()
 	subRouter.HandleFunc("", rateplanHandler.CreateRateplan).Methods(http.MethodPost)
+	subRouter.HandleFunc("", rateplanHandler.GetRateplans).Methods(http.MethodGet)
+	subRouter.HandleFunc("/{id}", rateplanHandler.GetRateplanByID).Methods(http.MethodGet)
 }
