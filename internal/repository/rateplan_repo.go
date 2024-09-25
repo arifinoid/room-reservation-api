@@ -10,6 +10,8 @@ type RatePlanRepository interface {
 	Create(ratePlan domain.RatePlan) (int, error)
 	GetAll() ([]domain.RatePlan, error)
 	GetByID(id int) (domain.RatePlan, error)
+	Update(id int, ratePlan domain.RatePlan) error
+	Delete(id int) error
 }
 
 type ratePlanRepo struct {
@@ -56,4 +58,22 @@ func (r *ratePlanRepo) GetByID(id int) (domain.RatePlan, error) {
 		return ratePlan, err
 	}
 	return ratePlan, nil
+}
+
+func (r *ratePlanRepo) Update(id int, ratePlan domain.RatePlan) error {
+	query := "UPDATE rateplans SET room_id = $1, name = $2, slug = $3, detail = $4, price = $5 WHERE id = $6"
+	_, err := r.db.Exec(query, ratePlan.RoomID, ratePlan.Name, ratePlan.Slug, ratePlan.Detail, ratePlan.Price, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *ratePlanRepo) Delete(id int) error {
+	query := "DELETE FROM rateplans WHERE id = $1"
+	_, err := r.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }

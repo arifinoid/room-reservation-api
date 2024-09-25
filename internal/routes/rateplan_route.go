@@ -12,4 +12,6 @@ func RegisterRatePlanRoutes(r *mux.Router, rateplanHandler *handler.RatePlanHand
 	subRouter.HandleFunc("", rateplanHandler.CreateRateplan).Methods(http.MethodPost)
 	subRouter.HandleFunc("", rateplanHandler.GetRateplans).Methods(http.MethodGet)
 	subRouter.HandleFunc("/{id}", rateplanHandler.GetRateplanByID).Methods(http.MethodGet)
+	subRouter.HandleFunc("/{id}", rateplanHandler.UpdateRateplan).Methods(http.MethodPut)
+	subRouter.HandleFunc("/{id}", rateplanHandler.DeleteRateplan).Methods(http.MethodDelete)
 }

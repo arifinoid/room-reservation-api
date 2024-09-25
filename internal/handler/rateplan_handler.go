@@ -68,3 +68,42 @@ func (h *RatePlanHandler) GetRateplans(w http.ResponseWriter, r *http.Request) {
 	}
 	lib.JSONResponse(w, rateplans, true, nil)
 }
+
+func (h *RatePlanHandler) UpdateRateplan(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		lib.JSONResponse(w, struct{}{}, false, errors.New("invalid rateplan id"))
+		return
+	}
+	var rateplan domain.RatePlan
+	if err := json.NewDecoder(r.Body).Decode(&rateplan); err != nil {
+		lib.JSONResponse(w, struct{}{}, false, err)
+		return
+	}
+	if err := h.validate.Struct(rateplan); err != nil {
+		lib.JSONResponse(w, struct{}{}, false, err)
+		return
+	}
+	err = h.RatePlanService.UpdateRateplan(id, rateplan)
+	if err != nil {
+		lib.JSONResponse(w, struct{}{}, false, err)
+		return
+	}
+	lib.JSONResponse(w, struct{}{}, true, nil)
+}
+
+func (h *RatePlanHandler) DeleteRateplan(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	id, err := strconv.Atoi(params["id"])
+	if err != nil {
+		lib.JSONResponse(w, struct{}{}, false, errors.New("invalid rateplan id"))
+		return
+	}
+	err = h.RatePlanService.DeleteRateplan(id)
+	if err != nil {
+		lib.JSONResponse(w, struct{}{}, false, err)
+		return
+	}
+	lib.JSONResponse(w, struct{}{}, true, nil)
+}
