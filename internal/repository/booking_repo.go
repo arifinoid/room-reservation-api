@@ -4,6 +4,8 @@ import (
 	"database/sql"
 	"fmt"
 	"math/rand"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/arifinoid/room-reservation-api/internal/domain"
@@ -11,7 +13,7 @@ import (
 
 type BookingRepository interface {
 	Create(booking domain.Booking) (int, error)
-	GetAll() ([]domain.Booking, error)
+	GetAll(filter domain.BookingFilter) ([]domain.Booking, error)
 	GetByID(id int) (domain.Booking, error)
 	Update(id int, booking domain.Booking) error
 	Delete(id int) error
@@ -63,10 +65,54 @@ func (r *bookingRepo) Create(booking domain.Booking) (int, error) {
 	return id, nil
 }
 
-func (r *bookingRepo) GetAll() ([]domain.Booking, error) {
+func (r *bookingRepo) GetAll(filter domain.BookingFilter) ([]domain.Booking, error) {
 	var bookings []domain.Booking
+	query := "SELECT * FROM bookings WHERE 1=1"
+	args := []interface{}{}
+	var conditions []string
 
-	rows, err := r.db.Query("SELECT * FROM bookings")
+	if filter.ReservationDateFrom != "" {
+		conditions = append(conditions, "reservation_date >= $"+strconv.Itoa(len(args)+1))
+		args = append(args, filter.ReservationDateFrom)
+	}
+	if filter.ReservationDateTo != "" {
+		conditions = append(conditions, "reservation_date <= $"+strconv.Itoa(len(args)+1))
+		args = append(args, filter.ReservationDateTo)
+	}
+	if filter.CheckInDate != "" {
+		conditions = append(conditions, "check_in = $"+strconv.Itoa(len(args)+1))
+		args = append(args, filter.CheckInDate)
+	}
+	if filter.CheckOutDate != "" {
+		conditions = append(conditions, "check_out = $"+strconv.Itoa(len(args)+1))
+		args = append(args, filter.CheckOutDate)
+	}
+	if filter.GuestName != "" {
+		conditions = append(conditions, "name ILIKE $"+strconv.Itoa(len(args)+1))
+		args = append(args, "%"+filter.GuestName+"%")
+	}
+	if filter.GuestCountry != "" {
+		conditions = append(conditions, "country ILIKE $"+strconv.Itoa(len(args)+1))
+		args = append(args, "%"+filter.GuestCountry+"%")
+	}
+	if filter.PaymentStatus != "" {
+		conditions = append(conditions, "payment_status = $"+strconv.Itoa(len(args)+1))
+		args = append(args, filter.PaymentStatus)
+	}
+	if filter.ReservationNumberFrom != "" {
+		conditions = append(conditions, "reservation_number >= $"+strconv.Itoa(len(args)+1))
+		args = append(args, filter.ReservationNumberFrom)
+	}
+	if filter.ReservationNumberTo != "" {
+		conditions = append(conditions, "reservation_number <= $"+strconv.Itoa(len(args)+1))
+		args = append(args, filter.ReservationNumberTo)
+	}
+
+	if len(conditions) > 0 {
+		query += " AND " + strings.Join(conditions, " AND ")
+	}
+
+	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}

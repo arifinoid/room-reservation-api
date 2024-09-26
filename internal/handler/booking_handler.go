@@ -48,7 +48,38 @@ func (h *BookingHandler) CreateBooking(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *BookingHandler) GetBookings(w http.ResponseWriter, r *http.Request) {
-	bookings, err := h.BookingService.GetBookings()
+	filter := domain.BookingFilter{}
+	query := r.URL.Query()
+
+	if fromDate := query.Get("reservation_date_from"); fromDate != "" {
+		filter.ReservationDateFrom = fromDate
+	}
+	if toDate := query.Get("reservation_date_to"); toDate != "" {
+		filter.ReservationDateTo = toDate
+	}
+	if checkIn := query.Get("check_in_date"); checkIn != "" {
+		filter.CheckInDate = checkIn
+	}
+	if checkOut := query.Get("check_out_date"); checkOut != "" {
+		filter.CheckOutDate = checkOut
+	}
+	if guestName := query.Get("guest_name"); guestName != "" {
+		filter.GuestName = guestName
+	}
+	if guestCountry := query.Get("guest_country"); guestCountry != "" {
+		filter.GuestCountry = guestCountry
+	}
+	if paymentStatus := query.Get("payment_status"); paymentStatus != "" {
+		filter.PaymentStatus = paymentStatus
+	}
+	if reservationNumFrom := query.Get("reservation_number_from"); reservationNumFrom != "" {
+		filter.ReservationNumberFrom = reservationNumFrom
+	}
+	if reservationNumTo := query.Get("reservation_number_to"); reservationNumTo != "" {
+		filter.ReservationNumberTo = reservationNumTo
+	}
+
+	bookings, err := h.BookingService.GetBookings(filter)
 	if err != nil {
 		lib.JSONResponse(w, struct{}{}, false, err)
 		return

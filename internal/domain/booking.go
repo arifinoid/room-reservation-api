@@ -18,3 +18,15 @@ type Booking struct {
 	Total             float64   `json:"total" validate:"required,gte=0"`
 	PaymentStatus     string    `json:"payment_status" validate:"required,oneof='paid' 'pending' 'canceled'"`
 }
+
+type BookingFilter struct {
+	ReservationDateFrom   string `json:"reservation_date_from"`
+	ReservationDateTo     string `json:"reservation_date_to"`
+	CheckInDate           string `json:"check_in_date"`
+	CheckOutDate          string `json:"check_out_date"`
+	GuestName             string `json:"guest_name"`
+	GuestCountry          string `json:"guest_country"`
+	PaymentStatus         string `json:"payment_status"`
+	ReservationNumberFrom string `json:"reservation_number_from"`
+	ReservationNumberTo   string `json:"reservation_number_to"`
+}

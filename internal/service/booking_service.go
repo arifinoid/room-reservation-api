@@ -7,7 +7,7 @@ import (
 
 type BookingService interface {
 	CreateBooking(booking domain.Booking) (int, error)
-	GetBookings() ([]domain.Booking, error)
+	GetBookings(filter domain.BookingFilter) ([]domain.Booking, error)
 	GetBookingByID(id int) (domain.Booking, error)
 	UpdateBooking(id int, booking domain.Booking) error
 	DeleteBooking(id int) error
@@ -27,8 +27,8 @@ func (s *bookingService) CreateBooking(booking domain.Booking) (int, error) {
 	return s.bookingRepo.Create(booking)
 }
 
-func (s *bookingService) GetBookings() ([]domain.Booking, error) {
-	return s.bookingRepo.GetAll()
+func (s *bookingService) GetBookings(filter domain.BookingFilter) ([]domain.Booking, error) {
+	return s.bookingRepo.GetAll(filter)
 }
 
 func (s *bookingService) GetBookingByID(id int) (domain.Booking, error) {
