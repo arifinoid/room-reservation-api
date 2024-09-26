@@ -49,6 +49,17 @@ func (r *bookingRepo) Create(booking domain.Booking) (int, error) {
 		return 0, err
 	}
 
+	updateAvailabilityQuery := `
+	UPDATE calendars
+	SET availability = availability - 1
+	WHERE room_id = $1
+	  AND rateplan_id = $2
+	  AND date BETWEEN $3 AND $4`
+	_, err = r.db.Exec(updateAvailabilityQuery, booking.RoomID, booking.RateplanID, booking.CheckIn, booking.CheckOut)
+	if err != nil {
+		return 0, err
+	}
+
 	return id, nil
 }
 
@@ -93,10 +104,31 @@ func (r *bookingRepo) Update(id int, booking domain.Booking) error {
 }
 
 func (r *bookingRepo) Delete(id int) error {
-	query := "DELETE FROM bookings WHERE id = $1"
-	_, err := r.db.Exec(query, id)
+	var roomID, rateplanID int
+	var checkIn, checkOut time.Time
+
+	query := `SELECT room_id, rateplan_id, check_in, check_out FROM bookings WHERE id = $1`
+	err := r.db.QueryRow(query, id).Scan(&roomID, &rateplanID, &checkIn, &checkOut)
 	if err != nil {
 		return err
 	}
+
+	updateAvailabilityQuery := `
+	UPDATE calendars
+	SET availability = availability + 1
+	WHERE room_id = $1
+	  AND rateplan_id = $2
+	  AND date BETWEEN $3 AND $4`
+	_, err = r.db.Exec(updateAvailabilityQuery, roomID, rateplanID, checkIn, checkOut)
+	if err != nil {
+		return err
+	}
+
+	deleteQuery := `DELETE FROM bookings WHERE id = $1`
+	_, err = r.db.Exec(deleteQuery, id)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
