@@ -11,6 +11,8 @@ type CalendarService interface {
 	CreateCalendar(calendar domain.Calendar) (int, error)
 	GetCalendars() ([]domain.Calendar, error)
 	GetCalendar(id int) (domain.Calendar, error)
+	UpdateCalendar(id int, calendar domain.Calendar) error
+	DeleteCalendar(id int) error
 }
 
 type calendarService struct {
@@ -36,4 +38,18 @@ func (s *calendarService) GetCalendar(id int) (domain.Calendar, error) {
 		return domain.Calendar{}, errors.New("invalid id")
 	}
 	return s.calendarRepo.GetByID(id)
+}
+
+func (s *calendarService) UpdateCalendar(id int, calendar domain.Calendar) error {
+	if id <= 0 {
+		return errors.New("invalid id")
+	}
+	return s.calendarRepo.Update(id, calendar)
+}
+
+func (s *calendarService) DeleteCalendar(id int) error {
+	if id <= 0 {
+		return errors.New("invalid id")
+	}
+	return s.calendarRepo.Delete(id)
 }

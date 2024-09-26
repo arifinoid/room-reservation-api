@@ -12,4 +12,6 @@ func RegisterCalendarRoutes(r *mux.Router, calendarHandler *handler.CalendarHand
 	subRouter.HandleFunc("", calendarHandler.CreateCalendar).Methods(http.MethodPost)
 	subRouter.HandleFunc("", calendarHandler.GetCalendars).Methods(http.MethodGet)
 	subRouter.HandleFunc("/{id}", calendarHandler.GetCalendarByID).Methods(http.MethodGet)
+	subRouter.HandleFunc("/{id}", calendarHandler.UpdateCalendar).Methods(http.MethodPut)
+	subRouter.HandleFunc("/{id}", calendarHandler.DeleteCalendar).Methods(http.MethodDelete)
 }

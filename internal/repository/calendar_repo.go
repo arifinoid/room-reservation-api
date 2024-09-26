@@ -11,6 +11,8 @@ type CalendarRepository interface {
 	Create(calendar domain.Calendar) (int, error)
 	GetAll() ([]domain.Calendar, error)
 	GetByID(id int) (domain.Calendar, error)
+	Update(id int, calendar domain.Calendar) error
+	Delete(id int) error
 }
 
 type calendarRepo struct {
@@ -79,4 +81,52 @@ func (r *calendarRepo) GetByID(id int) (domain.Calendar, error) {
 		return calendar, err
 	}
 	return calendar, nil
+}
+
+func (r *calendarRepo) Update(id int, calendar domain.Calendar) error {
+	var roomAvailability int
+	err := r.db.QueryRow("SELECT availability FROM rooms WHERE id = $1", calendar.RoomID).Scan(&roomAvailability)
+	if err != nil {
+		return err
+	}
+
+	var ratePlanPrice float64
+	err = r.db.QueryRow("SELECT price FROM rateplans WHERE id = $1", calendar.RatePlanID).Scan(&ratePlanPrice)
+	if err != nil {
+		return err
+	}
+
+	if calendar.Availability == 0 {
+		err = r.db.QueryRow("SELECT availability FROM calendars WHERE id = $1", calendar.ID).Scan(&calendar.Availability)
+		if err != nil {
+			return err
+		}
+	} else if calendar.Availability > roomAvailability {
+		return errors.New("availability cannot exceed room availability")
+	}
+
+	if calendar.Price == 0 {
+		err = r.db.QueryRow("SELECT price FROM calendars WHERE id = $1", calendar.ID).Scan(&calendar.Price)
+		if err != nil {
+			return err
+		}
+	} else if calendar.Price > ratePlanPrice {
+		return errors.New("price cannot exceed rate plan price")
+	}
+
+	query := "UPDATE calendars SET room_id = $1, rateplan_id = $2, date = $3, availability = $4, price = $5 WHERE id = $6"
+	_, err = r.db.Exec(query, calendar.RoomID, calendar.RatePlanID, calendar.Date, calendar.Availability, calendar.Price, calendar.ID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *calendarRepo) Delete(id int) error {
+	query := "DELETE FROM calendars WHERE id = $1"
+	_, err := r.db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
