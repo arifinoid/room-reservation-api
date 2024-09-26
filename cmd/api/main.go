@@ -71,11 +71,16 @@ func main() {
 	bookingService := service.NewBookingService(bookingRepo)
 	bookingHandler := handler.NewBookingHandler(bookingService, validate)
 
+	revenueRepo := repository.NewRevenueRepo(db)
+	revenueService := service.NewRevenueService(revenueRepo)
+	revenueHandler := handler.NewRevenueHandler(revenueService)
+
 	router := mux.NewRouter()
 	routes.RegisterRoomRoutes(router, roomHandler)
 	routes.RegisterRatePlanRoutes(router, rateplanHandler)
 	routes.RegisterCalendarRoutes(router, calendarHandler)
 	routes.RegisterBookingRoutes(router, bookingHandler)
+	routes.RegisterRevenueRoutes(router, revenueHandler)
 
 	log.Println("Starting server on :8080...")
 	if err := http.ListenAndServe(":8080", router); err != nil {
